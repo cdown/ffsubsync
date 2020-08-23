@@ -356,6 +356,8 @@ def add_cli_only_args(parser):
     parser.add_argument('--extract-subs-from-stream', default=None,
                         help='If specified, do not attempt sync; instead, just extract subtitles'
                              ' from the specified stream using the reference.')
+    parser.add_argument('--ignore-srt-parsing-errors', action='store_true',
+                        help='Warn and continue unknown sections in SRT files, instead of failing')
     parser.add_argument(
         '--ffmpeg-path', '--ffmpegpath', default=None,
         help='Where to look for ffmpeg and ffprobe. Uses the system PATH by default.'

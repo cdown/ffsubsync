@@ -24,6 +24,7 @@ def make_subtitle_parser(
         caching=False,
         max_subtitle_seconds=DEFAULT_MAX_SUBTITLE_SECONDS,
         start_seconds=DEFAULT_START_SECONDS,
+        ignore_srt_parsing_errors=False,
         **kwargs
 ):
     return GenericSubtitleParser(
@@ -31,7 +32,8 @@ def make_subtitle_parser(
         encoding=encoding,
         caching=caching,
         max_subtitle_seconds=max_subtitle_seconds,
-        start_seconds=start_seconds
+        start_seconds=start_seconds,
+        ignore_srt_parsing_errors=ignore_srt_parsing_errors
     )
 
 
@@ -64,7 +66,7 @@ def _preprocess_subs(subs, max_subtitle_seconds=None, start_seconds=0, tolerant=
 
 
 class GenericSubtitleParser(SubsMixin, TransformerMixin):
-    def __init__(self, fmt='srt', encoding='infer', caching=False, max_subtitle_seconds=None, start_seconds=0):
+    def __init__(self, fmt='srt', encoding='infer', caching=False, max_subtitle_seconds=None, start_seconds=0, ignore_srt_parsing_errors=False):
         super(self.__class__, self).__init__()
         self.sub_format = fmt
         self.encoding = encoding
@@ -74,6 +76,7 @@ class GenericSubtitleParser(SubsMixin, TransformerMixin):
         self.sub_skippers = []
         self.max_subtitle_seconds = max_subtitle_seconds
         self.start_seconds = start_seconds
+        self.ignore_srt_parsing_errors = ignore_srt_parsing_errors
 
     def fit(self, fname, *_):
         if self.caching and self.fit_fname == fname:
@@ -90,7 +93,7 @@ class GenericSubtitleParser(SubsMixin, TransformerMixin):
             try:
                 decoded_subs = subs.decode(encoding, errors='replace').strip()
                 if self.sub_format == 'srt':
-                    parsed_subs = srt.parse(decoded_subs)
+                    parsed_subs = srt.parse(decoded_subs, ignore_errors=self.ignore_srt_parsing_errors)
                 elif self.sub_format in ('ass', 'ssa', 'sub'):
                     parsed_subs = pysubs2.SSAFile.from_string(decoded_subs)
                 else:
